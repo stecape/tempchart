@@ -38,6 +38,6 @@ Meteor.startup(() => {
     //store Documents in Collections
     Meteor.call('temperature.insert', temperature)
 
-  },1000)
+  },5000)
 
 })

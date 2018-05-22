@@ -15,6 +15,7 @@ export default class App extends Component {
 				<Link to="/echarts">Echarts</Link>{' '}
 				<Link to="/highcharts">Highcharts</Link>
 				<Switch>
+					<Route exact path="/" render = { () => { return "" } } />
 					<Route path="/chartist" component={Chartist} />
 					<Route path="/charts" component={Charts} />
 					<Route path="/echarts" component={Echarts} />
