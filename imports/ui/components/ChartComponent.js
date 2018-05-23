@@ -72,9 +72,9 @@ class ChartComponent extends Component {
           	name="Valve State"
           	data={this.state.valve}
           	step
+            marker={{enabled: false}}
+            color='#7cb5ec'
           	lineWidth={0}
-          	marker={{enabled: false}}
-          	color='#7cb5ec'
           	fillOpacity={0.2}
           />
           <LineSeries
@@ -89,7 +89,8 @@ class ChartComponent extends Component {
           	id="tempAct"
           	name="Temperature Actual"
           	data={this.state.tempAct}
-          	step marker={{enabled: false}}
+          	step
+            marker={{enabled: false}}
           	color='#90ed7d'
           />
           <SplineSeries
