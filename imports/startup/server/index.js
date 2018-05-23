@@ -3,6 +3,7 @@ import { Temperature } from '../../api/Temperature'
 
 Meteor.startup(() => {
 
+  //clear MongoDB Temperature Collection
   Meteor.call('temperature.clear')
 
 	var x = 0
@@ -15,7 +16,6 @@ Meteor.startup(() => {
     return date
   }
   
-  //clear MongoDB Temperature Collection
   
   //start date generator function
   var intervalId = Meteor.setInterval(() => {
@@ -23,7 +23,7 @@ Meteor.startup(() => {
     var temp = Math.floor(150 + Math.random() * 170)/10
     var tempSet = Math.floor(200 + Math.random() * 100)/10
     var tempAct = Math.floor(200 + Math.random() * 100)/10
-    var valve = tempSet < tempAct ? 1 : 0
+    var valve = tempSet > tempAct ? 1 : 0
     //console.log (date+"", temp, tempSet, tempAct, valve)
     x = x + 1
 

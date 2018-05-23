@@ -3,7 +3,7 @@ import { withTracker } from 'meteor/react-meteor-data'
 import { Mongo } from 'meteor/mongo'
 import { Temperature } from '../../api/Temperature'
 import Highcharts from 'highcharts'
-import { HighchartsChart, Chart, withHighcharts, XAxis, YAxis, Title, Legend, AreaSeries, LineSeries, SplineSeries } from 'react-jsx-highcharts'
+import { HighchartsChart, Chart, withHighcharts, XAxis, YAxis, Title, Tooltip, Legend, AreaSeries, LineSeries, SplineSeries } from 'react-jsx-highcharts'
 import "../styles/Chart.css"
 
 class ChartComponent extends Component {
@@ -45,25 +45,61 @@ class ChartComponent extends Component {
 
 	render() {
 		return ( 
-		  <HighchartsChart time={{useUTC: false}} className="chart" >
+		  <HighchartsChart time={{useUTC: false}} className="chart" id="chartComponent" >
         <Chart />
 
-        <Title>Dynamically updating data</Title>
+        <Title>Room Temperature</Title>
+
+        <Tooltip 
+        	valueSuffix='°C'
+        	split={true}
+        	distance={30}
+        	padding={5}
+        />
 
         <Legend>
           <Legend.Title>Legend</Legend.Title>
         </Legend>
 
-        <XAxis type="datetime" useUTC={false} >
+        <XAxis type="datetime" crosshair={{enabled: true}}>
           <XAxis.Title>Time</XAxis.Title>
         </XAxis>
 
         <YAxis id="temperature">
           <YAxis.Title>Temperature (°C)</YAxis.Title>
-          <AreaSeries id="valve" name="Valve State" data={this.state.valve} step lineWidth={0} marker={false} color='#7cb5ec' fillOpacity={0.2} />
-          <LineSeries id="tempSet" name="Temperature Set" data={this.state.tempSet} step marker={false} color='#7cb5ec' />
-          <SplineSeries id="tempAct" name="Temperature Actual" data={this.state.tempAct} step marker={false} color='#90ed7d' />
-          <SplineSeries id="temp" name="External Temperature" data={this.state.temp} marker={false} color='#f7a35c' />
+          <AreaSeries
+          	id="valve"
+          	name="Valve State"
+          	data={this.state.valve}
+          	step
+          	lineWidth={0}
+          	marker={{enabled: false}}
+          	color='#7cb5ec'
+          	fillOpacity={0.2}
+          />
+          <LineSeries
+          	id="tempSet"
+          	name="Temperature Set"
+          	data={this.state.tempSet}
+          	step
+          	marker={{enabled: false}}
+          	color='#7cb5ec'
+          />
+          <SplineSeries
+          	id="tempAct"
+          	name="Temperature Actual"
+          	data={this.state.tempAct}
+          	step marker={{enabled: false}}
+          	color='#90ed7d'
+          />
+          <SplineSeries
+          	id="temp"
+          	name="External Temperature"
+          	data={this.state.temp}
+          	step
+          	marker={{enabled: false}}
+          	color='#f7a35c'
+          />
         </YAxis>
       </HighchartsChart>
 		)
