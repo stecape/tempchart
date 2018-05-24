@@ -46,6 +46,7 @@ class ChartComponent extends Component {
 	render() {
 		return ( 
 		  <HighchartsChart time={{useUTC: false}} className="chart" id="chartComponent" >
+        {this.props.children}
         <Chart />
 
         <Title>Room Temperature</Title>
@@ -107,4 +108,14 @@ class ChartComponent extends Component {
 	}
 }
 
-export default withHighcharts(ChartComponent, Highcharts)
+ChartComponentContainer = withHighcharts(ChartComponent, Highcharts)
+
+export default HighChartsContainer = withTracker((props) => {
+  var gte = props.gte
+  var lt  = props.lt
+  Meteor.subscribe('temperature', {gte: gte, lt: lt})
+
+  return {
+    temps: Temperature.find({}, {sort: {date: -1}}).fetch()
+  }
+})(ChartComponentContainer)

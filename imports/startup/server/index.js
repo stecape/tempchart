@@ -9,8 +9,8 @@ Meteor.startup(() => {
 	var x = 0
   
   getDate = () => {
-    var _x = x*299000
-    var d = new Date()
+    var _x = x*25199000
+    var d = new Date(new Date().setDate(new Date().getDate()-365))
     var dx = d.getTime() + _x
     var date = new Date(dx)
     return date
