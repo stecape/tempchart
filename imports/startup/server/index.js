@@ -1,10 +1,12 @@
 import { Meteor } from 'meteor/meteor'
 import { Temperature } from '../../api/Temperature'
+import { Charts } from '../../api/Charts'
 
 Meteor.startup(() => {
 
   //clear MongoDB Temperature Collection
   Meteor.call('temperature.clear')
+  Meteor.call('charts.clear')
 
 	var x = 0
   
@@ -24,9 +26,8 @@ Meteor.startup(() => {
     var tempSet = Math.floor(200 + Math.random() * 100)/10
     var tempAct = Math.floor(200 + Math.random() * 100)/10
     var valve = tempSet > tempAct ? 1 : 0
-    //console.log (date+"", temp, tempSet, tempAct, valve)
+    
     x = x + 1
-
     temperature = {
       date:    date, 
       temp:    temp, 
@@ -35,9 +36,46 @@ Meteor.startup(() => {
       valve:   valve
     }
     
+    tempChart = {
+      name: "temp",
+      year: date.getFullYear(),
+      x: date,
+      y: temp
+    }
+
+    tempSetChart = {
+      name: "tempSet",
+      year: date.getFullYear(),
+      x: date,
+      y: tempSet
+    }
+
+    tempActChart = {
+      name: "tempAct",
+      year: date.getFullYear(),
+      x: date,
+      y: tempAct
+    }
+
+    valveChart = {
+      name: "valve",
+      year: date.getFullYear(),
+      x: date,
+      y: valve
+    }
+
+
     //store Documents in Collections
     Meteor.call('temperature.insert', temperature)
+    Meteor.call('charts.upsert', tempChart)
+    Meteor.call('charts.upsert', tempSetChart)
+    Meteor.call('charts.upsert', tempActChart)
+    Meteor.call('charts.upsert', valveChart)
 
   },5000)
 
+
+  // Meteor.setInterval(() => {
+
+  // }, 1000)
 })

@@ -123,15 +123,21 @@ export default class HighCharts extends Component {
 			    <div>
 			      <label>
 							From
-			        <input name="from" type="datetime-local" value={this.state.gte.toISOString().substr(0,this.state.lt.toISOString().length-1)}
-								onChange={this.handleChange} />
+			        <input
+			        	name="from" type="datetime-local"
+			        	value={this.state.gte.toISOString().substr(0,this.state.lt.toISOString().length-1)}
+								onChange={this.handleChange}
+							/>
 			      </label>
 			    </div>
 			    <div>
 			      <label>
 							To
-			        <input name="to" type="datetime-local" value={this.state.lt.toISOString().substr(0,this.state.lt.toISOString().length-1)}
-								onChange={this.handleChange} />
+			        <input 
+			        	name="to" type="datetime-local"
+			        	value={this.state.lt.toISOString().substr(0,this.state.lt.toISOString().length-1)}
+								onChange={this.handleChange}
+							/>
 			      </label>
 			    </div>
 			  </form>
