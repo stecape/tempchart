@@ -20,34 +20,31 @@ class ChartComponent extends Component {
 	}
 
 	static getDerivedStateFromProps(nextProps, prevState){
-    var temp = []
-    var tempSet = []
-    var tempAct = []
-    var valve = []
-    temp = temp.concat( nextProps.temp.map( t => {
-      return t.data
-    }))
-    tempSet = tempSet.concat( nextProps.tempSet.map( t => {
-      return t.data
-    }))
-    tempAct = tempAct.concat( nextProps.tempAct.map( t => {
-      return t.data
-    }))
-    valve = valve.concat( nextProps.valve.map( t => {
-      return t.data
-    }))
-    var data = {
+
+    var temp = nextProps.temp.reduce((acc,t) => {
+      return acc.concat(t.data)
+    }, [] )
+    
+    var tempSet = nextProps.tempSet.reduce((acc,t) => {
+      return acc.concat(t.data)
+    }, [] )
+    
+    var tempAct = nextProps.tempAct.reduce((acc,t) => {
+      return acc.concat(t.data)
+    }, [] )
+    
+    var valve = nextProps.valve.reduce((acc,t) => {
+      return acc.concat(t.data)
+    }, [] )
+    
+    var series = {
       temp: temp,
       tempSet: tempSet,
       tempAct: tempAct,
       valve: valve      
     }
-		if (data != prevState.data) {
-			var series = data
-      series[data] = data
-      console.log(series)
-			return series
-		}
+		
+    return series
 	}
 
 	render() {
@@ -123,9 +120,9 @@ export default HighChartsContainer = withTracker((props) => {
   Meteor.subscribe('charts', {name: ['temp', 'tempSet', 'tempAct', 'valve']})
 
   return {
-    temp: Charts.find({name: 'temp'}).fetch(),
-    tempSet: Charts.find({name: 'tempSet'}).fetch(),
-    tempAct: Charts.find({name: 'tempAct'}).fetch(),
-    valve: Charts.find({name: 'valve'}).fetch()
+    temp: Charts.find({name: 'temp', year: {$gte: gte.getFullYear(), $lte: lt.getFullYear() }}).fetch(),
+    tempSet: Charts.find({name: 'tempSet', year: {$gte: gte.getFullYear(), $lte: lt.getFullYear() }}).fetch(),
+    tempAct: Charts.find({name: 'tempAct', year: {$gte: gte.getFullYear(), $lte: lt.getFullYear() }}).fetch(),
+    valve: Charts.find({name: 'valve', year: {$gte: gte.getFullYear(), $lte: lt.getFullYear() }}).fetch(),
   }
 })(ChartComponentContainer)

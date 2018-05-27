@@ -12,7 +12,7 @@ Meteor.startup(() => {
   
   getDate = () => {
     var _x = x*25199000
-    var d = new Date(new Date().setDate(new Date().getDate()-365))
+    var d = new Date(new Date().setDate(new Date().getDate()-160))
     var dx = d.getTime() + _x
     var date = new Date(dx)
     return date
@@ -39,28 +39,28 @@ Meteor.startup(() => {
     tempChart = {
       name: "temp",
       year: date.getFullYear(),
-      x: date,
+      x: date.getTime(),
       y: temp
     }
 
     tempSetChart = {
       name: "tempSet",
       year: date.getFullYear(),
-      x: date,
+      x: date.getTime(),
       y: tempSet
     }
 
     tempActChart = {
       name: "tempAct",
       year: date.getFullYear(),
-      x: date,
+      x: date.getTime(),
       y: tempAct
     }
 
     valveChart = {
       name: "valve",
       year: date.getFullYear(),
-      x: date,
+      x: date.getTime(),
       y: valve
     }
 
@@ -72,7 +72,7 @@ Meteor.startup(() => {
     Meteor.call('charts.upsert', tempActChart)
     Meteor.call('charts.upsert', valveChart)
 
-  },5000)
+  },1000)
 
 
   // Meteor.setInterval(() => {

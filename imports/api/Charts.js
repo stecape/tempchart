@@ -17,7 +17,8 @@ Meteor.methods({
     }
     data = [chart.x, chart.y]
     Charts.update({
-      name: chart.name
+      name: chart.name,
+      year: chart.year
     }, {
       $push: {
         data: data
