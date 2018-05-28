@@ -1,17 +1,16 @@
 import React, { Component } from 'react'
 import { Mongo } from 'meteor/mongo'
-import { Charts } from '../../api/Charts'
-import ChartComponent from '../components/ChartComponent2'
+import ChartComponent from '../components/ChartComponent'
 
-export default class Chartsjs extends Component {
+export default class Charts extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      selectedOption: 'last24Hours',
       gte: new Date(new Date().setDate(new Date().getDate()-1)),
       lte: new Date(),
+      selectedOption: 'last24Hours',
       width: 1,
-      unit: 86400,
+      unit: 60,
       now: new Date()
     };
 
@@ -20,6 +19,7 @@ export default class Chartsjs extends Component {
   }
 
   componentDidMount() {
+  	//a timer update the actual moment time each 500ms. This is the timebase of the real time charting.
   	this.timer = setInterval(() => this.setState({now: new Date()}), 500)
   }
 
@@ -76,6 +76,7 @@ export default class Chartsjs extends Component {
 		    })
 	   		break
 	  }
+
     if ( this.state.selectedOption == 'Span' && event.target.name == 'width' ) {
 	    this.setState({
 	      width: event.target.value
@@ -98,18 +99,22 @@ export default class Chartsjs extends Component {
 	  }
   }
 
+	//not used
   handleSubmit(event) {
     event.preventDefault()
   }
 
+  //as children of the chart there are some configuration controls.
+  //There are some real time trending options (last Year...Last 24 Hours and the more flexible Span)
+  //And an historical option (Period) that allows the user to select the period to scope.
 	render() {
 		return ( 
 			<ChartComponent 
 				gte={this.state.gte} 
 				lte={this.state.lte}
+				selectedOption={this.state.selectedOption}
 				width={this.state.width}
 				unit={this.state.unit}
-				selectedOption={this.state.selectedOption}
 				now={this.state.now}
 			>
 			  <form>
@@ -161,33 +166,39 @@ export default class Chartsjs extends Component {
 								Enter Span
 			      </label>
 			    </div>
-			    <div>
-			      <label>
-							Width
-			        <input
-			        	name="width" type="number"
-			        	value={this.state.width}
-								onChange={this.handleChange}
-							/>
-			      </label>
-			    </div>
-			    <div>
-			      <label>
-							Unit
-			        <select
-			        	name="unit"
-			        	value={this.state.unit}
-								onChange={this.handleChange}
-							>
-								<option value={60*1}>Minutes</option>
-								<option value={60*60}>Hours</option>
-								<option value={60*60*24}>Days</option>
-								<option value={60*60*24*7}>Weeks</option>
-								<option value={60*60*24*30}>Months</option>
-								<option value={60*60*24*365}>Years</option>
-							</select>
-			      </label>
-			    </div>
+			    {
+			    	this.state.selectedOption == "Span" &&
+			    	<div>
+				  		<div>
+	  			      <label>
+	  							Width
+	  			        <input
+	  			        	name="width" type="number"
+	  			        	value={this.state.width}
+	  								onChange={this.handleChange}
+	  							/>
+	  			      </label>
+	  			    </div>
+	  			    <div>
+	  			      <label>
+	  							Unit
+	  			        <select
+	  			        	name="unit"
+	  			        	value={this.state.unit}
+	  								onChange={this.handleChange}
+	  							>
+	  								<option value={1}>Seconds</option>
+	  								<option value={60*1}>Minutes</option>
+	  								<option value={60*60}>Hours</option>
+	  								<option value={60*60*24}>Days</option>
+	  								<option value={60*60*24*7}>Weeks</option>
+	  								<option value={60*60*24*30}>Months</option>
+	  								<option value={60*60*24*365}>Years</option>
+	  							</select>
+	  			      </label>
+	  					</div>
+	  				</div>
+  			  }
 			    <div>
 			      <label>
 			        <input type="radio" value="Period" 
@@ -196,26 +207,31 @@ export default class Chartsjs extends Component {
 								Enter Period
 			      </label>
 			    </div>
-			    <div>
-			      <label>
-							From
-			        <input
-			        	name="from" type="datetime-local"
-			        	value={this.state.gte.toISOString().substr(0,this.state.gte.toISOString().length-1)}
-								onChange={this.handleChange}
-							/>
-			      </label>
-			    </div>
-			    <div>
-			      <label>
-							To
-			        <input 
-			        	name="to" type="datetime-local"
-			        	value={this.state.lte.toISOString().substr(0,this.state.lte.toISOString().length-1)}
-								onChange={this.handleChange}
-							/>
-			      </label>
-			    </div>
+			    {
+			    	this.state.selectedOption == "Period" &&
+			    	<div>
+					    <div>
+					      <label>
+									From
+					        <input
+					        	name="from" type="datetime-local"
+					        	value={this.state.gte.toISOString().substr(0,this.state.gte.toISOString().length-1)}
+										onChange={this.handleChange}
+									/>
+					      </label>
+					    </div>
+					    <div>
+					      <label>
+									To
+					        <input 
+					        	name="to" type="datetime-local"
+					        	value={this.state.lte.toISOString().substr(0,this.state.lte.toISOString().length-1)}
+										onChange={this.handleChange}
+									/>
+					      </label>
+					    </div>
+					  </div>
+					}
 			  </form>
 			</ChartComponent>
 		)
