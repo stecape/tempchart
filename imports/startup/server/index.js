@@ -33,7 +33,7 @@ Meteor.startup(() => {
       temp:    temp, 
       tempSet: tempSet, 
       tempAct: tempAct,
-      valve:   valve
+      valve:   valve * tempSet
     }
     
     tempChart = {
@@ -61,7 +61,7 @@ Meteor.startup(() => {
       name: "valve",
       year: date.getFullYear(),
       x: date.getTime(),
-      y: valve
+      y: valve * tempSet
     }
 
 
@@ -72,7 +72,7 @@ Meteor.startup(() => {
     Meteor.call('charts.upsert', tempActChart)
     Meteor.call('charts.upsert', valveChart)
 
-  },1000)
+  },500)
 
 
   // Meteor.setInterval(() => {

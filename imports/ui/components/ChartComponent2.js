@@ -21,27 +21,67 @@ class ChartComponent extends Component {
 
 	static getDerivedStateFromProps(nextProps, prevState){
 
-    var temp = nextProps.temp.reduce((acc,t) => {
-      return acc.concat(t.data)
-    }, [] )
+    var temp = nextProps.temp
+    .reduce((acc,t) => {
+        return acc.concat(t.data)
+      }, [] )
+    .filter(t => {
+        var gte = new Date(nextProps.gte)
+        var lte = new Date(nextProps.lte)
+        var comp = (gte.getTime() <= t[0]) && (t[0] <= lte.getTime())
+        return comp
+      })
+    .sort((a, b) => {
+        return a[0] - b[0]
+      })
     
-    var tempSet = nextProps.tempSet.reduce((acc,t) => {
-      return acc.concat(t.data)
-    }, [] )
+    var tempSet = nextProps.tempSet
+    .reduce((acc,t) => {
+        return acc.concat(t.data)
+      }, [] )
+    .filter(t => {
+        var gte = new Date(nextProps.gte)
+        var lte = new Date(nextProps.lte)
+        var comp = (gte.getTime() <= t[0]) && (t[0] <= lte.getTime())
+        return comp
+      })
+    .sort((a, b) => {
+        return a[0] - b[0]
+      })
     
-    var tempAct = nextProps.tempAct.reduce((acc,t) => {
-      return acc.concat(t.data)
-    }, [] )
+    var tempAct = nextProps.tempAct
+    .reduce((acc,t) => {
+        return acc.concat(t.data)
+      }, [] )
+    .filter(t => {
+        var gte = new Date(nextProps.gte)
+        var lte = new Date(nextProps.lte)
+        var comp = (gte.getTime() <= t[0]) && (t[0] <= lte.getTime())
+        return comp
+      })
+    .sort((a, b) => {
+        return a[0] - b[0]
+      })
     
-    var valve = nextProps.valve.reduce((acc,t) => {
-      return acc.concat(t.data)
-    }, [] )
+    var valve = nextProps.valve
+    .reduce((acc,t) => {
+        return acc.concat(t.data)
+      }, [] )
+    .filter(t => {
+        var gte = new Date(nextProps.gte)
+        var lte = new Date(nextProps.lte)
+        var comp = (gte.getTime() <= t[0]) && (t[0] <= lte.getTime())
+        return comp
+      })
+    .sort((a, b) => {
+        return a[0] - b[0]
+      })
     
     var series = {
       temp: temp,
       tempSet: tempSet,
       tempAct: tempAct,
-      valve: valve      
+      valve: valve
     }
 		
     return series
@@ -115,14 +155,23 @@ class ChartComponent extends Component {
 ChartComponentContainer = withHighcharts(ChartComponent, Highcharts)
 
 export default HighChartsContainer = withTracker((props) => {
-  var gte = props.gte
-  var lt  = props.lt
-  Meteor.subscribe('charts', {name: ['temp', 'tempSet', 'tempAct', 'valve']})
+
+  if ( props.selectedOption == "Period" ) {
+    var gte = props.gte
+    var lte  = props.lte
+  } else {
+    var gte = new Date(props.now.getTime() - ( props.width * props.unit * 1000 ))
+    var lte  = props.now
+  }
+
+  var subs = Meteor.subscribe('charts', {name: ['temp', 'tempSet', 'tempAct', 'valve']})
 
   return {
-    temp: Charts.find({name: 'temp', year: {$gte: gte.getFullYear(), $lte: lt.getFullYear() }}).fetch(),
-    tempSet: Charts.find({name: 'tempSet', year: {$gte: gte.getFullYear(), $lte: lt.getFullYear() }}).fetch(),
-    tempAct: Charts.find({name: 'tempAct', year: {$gte: gte.getFullYear(), $lte: lt.getFullYear() }}).fetch(),
-    valve: Charts.find({name: 'valve', year: {$gte: gte.getFullYear(), $lte: lt.getFullYear() }}).fetch(),
+    temp: Charts.find({name: 'temp', year: {$gte: gte.getFullYear(), $lte: lte.getFullYear() }}, {sort: {year: 1}}).fetch(),
+    tempSet: Charts.find({name: 'tempSet', year: {$gte: gte.getFullYear(), $lte: lte.getFullYear() }}, {sort: {year: 1}}).fetch(),
+    tempAct: Charts.find({name: 'tempAct', year: {$gte: gte.getFullYear(), $lte: lte.getFullYear() }}, {sort: {year: 1}}).fetch(),
+    valve: Charts.find({name: 'valve', year: {$gte: gte.getFullYear(), $lte: lte.getFullYear() }}, {sort: {year: 1}}).fetch(),
+    gte: gte,
+    lte: lte
   }
 })(ChartComponentContainer)

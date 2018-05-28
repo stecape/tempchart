@@ -9,11 +9,22 @@ export default class Chartsjs extends Component {
     this.state = {
       selectedOption: 'last24Hours',
       gte: new Date(new Date().setDate(new Date().getDate()-1)),
-      lt: new Date()
+      lte: new Date(),
+      width: 1,
+      unit: 86400,
+      now: new Date()
     };
 
     this.handleChange = this.handleChange.bind(this)
     this.handleSubmit = this.handleSubmit.bind(this)
+  }
+
+  componentDidMount() {
+  	this.timer = setInterval(() => this.setState({now: new Date()}), 500)
+  }
+
+  componentWillUnmount(){
+	  clearInterval(this.timer)
   }
 
   handleChange(event) {
@@ -21,44 +32,59 @@ export default class Chartsjs extends Component {
     switch(value) {
 	    case 'lastYear':
 		    this.setState({
-		      gte: new Date(new Date().setDate(new Date().getDate()-365)),
-		      lt: new Date(),
+		      width: 1,
+		      unit: 60*60*24*365,
 		    	selectedOption: value
 		    })
 	    	break
 	    case 'last6Months':
 		    this.setState({
-		      gte: new Date(new Date().setDate(new Date().getDate()-182)),
-		      lt: new Date(),
+		      width: 6,
+		      unit: 60*60*24*30,
 		    	selectedOption: value
 		    })
 	    	break
 	    case 'lastMonth':
 		    this.setState({
-		      gte: new Date(new Date().setDate(new Date().getDate()-30)),
-		      lt: new Date(),
+		      width: 1,
+		      unit: 60*60*24*30,
 		    	selectedOption: value
 		    })
 	    	break
 	    case 'lastWeek':
 		    this.setState({
-		      gte: new Date(new Date().setDate(new Date().getDate()-7)),
-		      lt: new Date(),
+		      width: 1,
+		      unit: 60*60*24*7,
 		    	selectedOption: value
 		    })
 	    	break
 	    case 'last24Hours':
 		    this.setState({
-		      gte: new Date(new Date().setDate(new Date().getDate()-1)),
-		      lt: new Date(),
+		      width: 1,
+		      unit: 60*60*24,
 		    	selectedOption: value
 		    })
 	    	break
+	    case 'Span':
+		    this.setState({
+		    	selectedOption: value
+		    })
+	   		break
 	    case 'Period':
 		    this.setState({
 		    	selectedOption: value
 		    })
 	   		break
+	  }
+    if ( this.state.selectedOption == 'Span' && event.target.name == 'width' ) {
+	    this.setState({
+	      width: event.target.value
+	    })
+	  }
+    if ( this.state.selectedOption == 'Span' && event.target.name == 'unit' ) {
+	    this.setState({
+	      unit: event.target.value
+	    })
 	  }
     if ( this.state.selectedOption == 'Period' && event.target.name == 'from' ) {
 	    this.setState({
@@ -67,7 +93,7 @@ export default class Chartsjs extends Component {
 	  }
     if ( this.state.selectedOption == 'Period' && event.target.name == 'to' ) {
 	    this.setState({
-	      lt: new Date(event.target.value)
+	      lte: new Date(event.target.value)
 	    })
 	  }
   }
@@ -78,7 +104,14 @@ export default class Chartsjs extends Component {
 
 	render() {
 		return ( 
-			<ChartComponent gte={this.state.gte} lt={this.state.lt}>
+			<ChartComponent 
+				gte={this.state.gte} 
+				lte={this.state.lte}
+				width={this.state.width}
+				unit={this.state.unit}
+				selectedOption={this.state.selectedOption}
+				now={this.state.now}
+			>
 			  <form>
 			    <div>
 			      <label>
@@ -122,6 +155,41 @@ export default class Chartsjs extends Component {
 			    </div>
 			    <div>
 			      <label>
+			        <input type="radio" value="Span" 
+								checked={this.state.selectedOption === 'Span'} 
+								onChange={this.handleChange} />
+								Enter Span
+			      </label>
+			    </div>
+			    <div>
+			      <label>
+							Width
+			        <input
+			        	name="width" type="number"
+			        	value={this.state.width}
+								onChange={this.handleChange}
+							/>
+			      </label>
+			    </div>
+			    <div>
+			      <label>
+							Unit
+			        <select
+			        	name="unit"
+			        	value={this.state.unit}
+								onChange={this.handleChange}
+							>
+								<option value={60*1}>Minutes</option>
+								<option value={60*60}>Hours</option>
+								<option value={60*60*24}>Days</option>
+								<option value={60*60*24*7}>Weeks</option>
+								<option value={60*60*24*30}>Months</option>
+								<option value={60*60*24*365}>Years</option>
+							</select>
+			      </label>
+			    </div>
+			    <div>
+			      <label>
 			        <input type="radio" value="Period" 
 								checked={this.state.selectedOption === 'Period'} 
 								onChange={this.handleChange} />
@@ -133,7 +201,7 @@ export default class Chartsjs extends Component {
 							From
 			        <input
 			        	name="from" type="datetime-local"
-			        	value={this.state.gte.toISOString().substr(0,this.state.lt.toISOString().length-1)}
+			        	value={this.state.gte.toISOString().substr(0,this.state.gte.toISOString().length-1)}
 								onChange={this.handleChange}
 							/>
 			      </label>
@@ -143,7 +211,7 @@ export default class Chartsjs extends Component {
 							To
 			        <input 
 			        	name="to" type="datetime-local"
-			        	value={this.state.lt.toISOString().substr(0,this.state.lt.toISOString().length-1)}
+			        	value={this.state.lte.toISOString().substr(0,this.state.lte.toISOString().length-1)}
 								onChange={this.handleChange}
 							/>
 			      </label>

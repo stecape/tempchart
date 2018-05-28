@@ -10,6 +10,8 @@ if (Meteor.isServer) {
   })
 }
 
+this.span = {}
+
 Meteor.methods({
   'charts.upsert'(chart) {
     if (Meteor.isClient) {
@@ -30,14 +32,7 @@ Meteor.methods({
       upsert: true
     })
   },
-
-/*  'charts.liveUpdate'(span){
-    Meteor.publish('charts', function (chart) {
-      return Charts.find({_id: {$in: chart._id}}, {sort: {year: -1}})
-    })
-    
-  },*/
-
+  
   'charts.clear'() {
     if (Meteor.isClient) {
       throw new Meteor.Error('not-authorized')

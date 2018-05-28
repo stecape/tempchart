@@ -30,7 +30,7 @@ class ChartComponent extends Component {
 				temp.push    ( [ temperature.date.getTime(), temperature.temp ] ) 
 				tempSet.push ( [ temperature.date.getTime(), temperature.tempSet ] )
 				tempAct.push ( [ temperature.date.getTime(), temperature.tempAct ] )
-				valve.push   ( [ temperature.date.getTime(), temperature.valve * temperature.tempSet ] )
+				valve.push   ( [ temperature.date.getTime(), temperature.valve ] )
 			})
 			var series = {
 					data: nextProps.temps,
