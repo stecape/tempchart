@@ -18,50 +18,58 @@ export default class Chartsjs extends Component {
 
   handleChange(event) {
   	var value = event.target.value
-    value == 'lastYear' &&
-    this.setState({
-      gte: new Date(new Date().setDate(new Date().getDate()-365)),
-      lt: new Date(),
-    	selectedOption: value
-    })
-    value == 'last6Months' &&
-    this.setState({
-      gte: new Date(new Date().setDate(new Date().getDate()-182)),
-      lt: new Date(),
-    	selectedOption: value
-    })
-    value == 'lastMonth' &&
-    this.setState({
-      gte: new Date(new Date().setDate(new Date().getDate()-30)),
-      lt: new Date(),
-    	selectedOption: value
-    })
-    value == 'lastWeek' &&
-    this.setState({
-      gte: new Date(new Date().setDate(new Date().getDate()-7)),
-      lt: new Date(),
-    	selectedOption: value
-    })
-    value == 'last24Hours' &&
-    this.setState({
-      gte: new Date(new Date().setDate(new Date().getDate()-1)),
-      lt: new Date(),
-    	selectedOption: value
-    })
-    value == 'Period' &&
-    this.setState({
-    	selectedOption: value
-    })
-    this.state.selectedOption == 'Period' &&
-    event.target.name == 'from' &&
-    this.setState({
-      gte: new Date(event.target.value)
-    })
-    this.state.selectedOption == 'Period' &&
-    event.target.name == 'to' &&
-    this.setState({
-      lt: new Date(event.target.value)
-    })
+    switch(value) {
+	    case 'lastYear':
+		    this.setState({
+		      gte: new Date(new Date().setDate(new Date().getDate()-365)),
+		      lt: new Date(),
+		    	selectedOption: value
+		    })
+	    	break
+	    case 'last6Months':
+		    this.setState({
+		      gte: new Date(new Date().setDate(new Date().getDate()-182)),
+		      lt: new Date(),
+		    	selectedOption: value
+		    })
+	    	break
+	    case 'lastMonth':
+		    this.setState({
+		      gte: new Date(new Date().setDate(new Date().getDate()-30)),
+		      lt: new Date(),
+		    	selectedOption: value
+		    })
+	    	break
+	    case 'lastWeek':
+		    this.setState({
+		      gte: new Date(new Date().setDate(new Date().getDate()-7)),
+		      lt: new Date(),
+		    	selectedOption: value
+		    })
+	    	break
+	    case 'last24Hours':
+		    this.setState({
+		      gte: new Date(new Date().setDate(new Date().getDate()-1)),
+		      lt: new Date(),
+		    	selectedOption: value
+		    })
+	    	break
+	    case 'Period':
+		    this.setState({
+		    	selectedOption: value
+		    })
+	   		break
+	  }
+    if ( this.state.selectedOption == 'Period' && event.target.name == 'from' ) {
+	    this.setState({
+	      gte: new Date(event.target.value)
+	    })
+	  }
+    if ( this.state.selectedOption == 'Period' && event.target.name == 'to' ) {
+	    this.setState({
+	      lt: new Date(event.target.value)
+	    })
+	  }
   }
 
   handleSubmit(event) {
