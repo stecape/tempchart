@@ -80,6 +80,8 @@ and you sort it by timestamp for optimize the performance of HighCharts
     .sort((a, b) => {
         return a[0] - b[0]
       })
+
+    console.log(temp)
     
     var tempSet = nextProps.tempSet
     .reduce((acc,t) => {

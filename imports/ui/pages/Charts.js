@@ -117,7 +117,7 @@ export default class Charts extends Component {
 				unit={this.state.unit}
 				now={this.state.now}
 			>
-			  <form>
+			  <form onSubmit={this.handleSubmit}>
 			    <div>
 			      <label>
 			        <input type="radio" value="lastYear" 
