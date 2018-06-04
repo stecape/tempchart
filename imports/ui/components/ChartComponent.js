@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { withTracker } from 'meteor/react-meteor-data'
 import { Mongo } from 'meteor/mongo'
 import { Charts } from '../../api/Charts'
+import { getData } from '../../api/dataTools'
 import Highcharts from 'highcharts'
 import { HighchartsChart, Chart, withHighcharts, XAxis, YAxis, Title, Tooltip, Legend, AreaSeries, LineSeries, SplineSeries } from 'react-jsx-highcharts'
 import "../styles/Chart.css"
@@ -67,64 +68,31 @@ then you filter it using the boundaries that are provided through props
 and you sort it by timestamp for optimize the performance of HighCharts
 
 */
-    var temp = nextProps.temp
-    .reduce((acc,t) => {
-        return acc.concat(t.data)
-      }, [] )
-    .filter(t => {
-        var gte = new Date(nextProps.gte)
-        var lte = new Date(nextProps.lte)
-        var comp = (gte.getTime() <= t[0]) && (t[0] <= lte.getTime())
-        return comp
-      })
-    .sort((a, b) => {
-        return a[0] - b[0]
-      })
-
-    console.log(temp)
-    
-    var tempSet = nextProps.tempSet
-    .reduce((acc,t) => {
-        return acc.concat(t.data)
-      }, [] )
-    .filter(t => {
-        var gte = new Date(nextProps.gte)
-        var lte = new Date(nextProps.lte)
-        var comp = (gte.getTime() <= t[0]) && (t[0] <= lte.getTime())
-        return comp
-      })
-    .sort((a, b) => {
-        return a[0] - b[0]
-      })
-    
-    var tempAct = nextProps.tempAct
-    .reduce((acc,t) => {
-        return acc.concat(t.data)
-      }, [] )
-    .filter(t => {
-        var gte = new Date(nextProps.gte)
-        var lte = new Date(nextProps.lte)
-        var comp = (gte.getTime() <= t[0]) && (t[0] <= lte.getTime())
-        return comp
-      })
-    .sort((a, b) => {
-        return a[0] - b[0]
-      })
-    
-    var valve = nextProps.valve
-    .reduce((acc,t) => {
-        return acc.concat(t.data)
-      }, [] )
-    .filter(t => {
-        var gte = new Date(nextProps.gte)
-        var lte = new Date(nextProps.lte)
-        var comp = (gte.getTime() <= t[0]) && (t[0] <= lte.getTime())
-        return comp
-      })
-    .sort((a, b) => {
-        return a[0] - b[0]
-      })
-    
+    var temp = getData(
+      nextProps.temp,
+      nextProps.gte,
+      nextProps.lte,
+      nextProps.detail
+    )
+    var tempSet = getData(
+      nextProps.tempSet,
+      nextProps.gte,
+      nextProps.lte,
+      nextProps.detail
+    )
+    var tempAct = getData(
+      nextProps.tempAct,
+      nextProps.gte,
+      nextProps.lte,
+      nextProps.detail
+    )
+    var valve = getData(
+      nextProps.valve,
+      nextProps.gte,
+      nextProps.lte,
+      nextProps.detail
+    )
+        
 
     // then you return an object that will be used for update the state
     var series = {
@@ -217,6 +185,10 @@ export default HighChartsContainer = withTracker((props) => {
     var lte  = props.now
   }
 
+  var interval = lte - gte
+
+  var detail = interval < 173000000 ? "high" : interval < 5357000000 ? "medium" : "low"
+
   var subs = Meteor.subscribe('charts', {name: ['temp', 'tempSet', 'tempAct', 'valve']})
 
   return {
@@ -225,6 +197,7 @@ export default HighChartsContainer = withTracker((props) => {
     tempAct: Charts.find({name: 'tempAct', year: {$gte: gte.getFullYear(), $lte: lte.getFullYear() }}, {sort: {year: 1}}).fetch(),
     valve: Charts.find({name: 'valve', year: {$gte: gte.getFullYear(), $lte: lte.getFullYear() }}, {sort: {year: 1}}).fetch(),
     gte: gte,
-    lte: lte
+    lte: lte,
+    detail: detail
   }
 })(ChartComponentContainer)

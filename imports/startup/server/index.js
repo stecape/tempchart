@@ -68,7 +68,7 @@ Meteor.startup(() => {
       name: "valve",
       year: date.getFullYear(),
       x: date.getTime(),
-      y: valve * tempSet
+      y: valve*100
     }
 
 
