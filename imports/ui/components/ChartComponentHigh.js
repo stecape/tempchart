@@ -2,21 +2,24 @@ import React, { Component } from 'react'
 import { withTracker } from 'meteor/react-meteor-data'
 import { Mongo } from 'meteor/mongo'
 import { Charts } from '../../api/Charts'
-import { getData } from '../../api/dataTools'
+import { getHighDetailSeries } from '../../api/dataTools'
 import Highcharts from 'highcharts'
-import { HighchartsChart, Chart, withHighcharts, XAxis, YAxis, Title, Tooltip, Legend, AreaSeries, LineSeries, SplineSeries } from 'react-jsx-highcharts'
+import HighchartsMore from 'highcharts/highcharts-more';
+HighchartsMore(Highcharts)
+import { HighchartsChart, Chart, withHighcharts, XAxis, YAxis, Title, Tooltip, Legend, LineSeries, SplineSeries, AreaSplineRangeSeries, ColumnSeries } from 'react-jsx-highcharts'
 import "../styles/Chart.css"
 
-class ChartComponent extends Component {
+class ChartComponentHigh extends Component {
 
 	constructor(props){
 		super(props)
 
 		this.state = {
-      temp: 	 [],
-      tempSet: [],
-      tempAct: [],
-      valve: 	 []
+      tempRange: [],
+      temp: 	   [],
+      tempSet:   [],
+      tempAct:   [],
+      valve: 	   []
 		}
 	}
 
@@ -68,29 +71,25 @@ then you filter it using the boundaries that are provided through props
 and you sort it by timestamp for optimize the performance of HighCharts
 
 */
-    var temp = getData(
+    var temp = getHighDetailSeries(
       nextProps.temp,
       nextProps.gte,
-      nextProps.lte,
-      nextProps.detail
+      nextProps.lte
     )
-    var tempSet = getData(
+    var tempSet = getHighDetailSeries(
       nextProps.tempSet,
       nextProps.gte,
-      nextProps.lte,
-      nextProps.detail
+      nextProps.lte
     )
-    var tempAct = getData(
+    var tempAct = getHighDetailSeries(
       nextProps.tempAct,
       nextProps.gte,
-      nextProps.lte,
-      nextProps.detail
+      nextProps.lte
     )
-    var valve = getData(
+    var valve = getHighDetailSeries(
       nextProps.valve,
       nextProps.gte,
-      nextProps.lte,
-      nextProps.detail
+      nextProps.lte
     )
         
 
@@ -106,18 +105,19 @@ and you sort it by timestamp for optimize the performance of HighCharts
 	}
 
 	render() {
-		return ( 
-		  <HighchartsChart time={{useUTC: false}} className="chart" id="chartComponent" >
+    return ( 
+      <HighchartsChart time={{useUTC: false}} className="chart" id="chartComponent" >
         {this.props.children}
         <Chart />
 
         <Title>Room Temperature</Title>
 
         <Tooltip 
-        	valueSuffix='°C'
-        	split={true}
-        	distance={30}
-        	padding={5}
+          distance={30}
+          padding={5}
+          backgroundColor='rgba(247,247,247,0)'
+          lineWidth={0}
+          shared={true}
         />
 
         <Legend>
@@ -127,50 +127,61 @@ and you sort it by timestamp for optimize the performance of HighCharts
         <XAxis type="datetime" crosshair={{enabled: true}}>
           <XAxis.Title>Time</XAxis.Title>
         </XAxis>
-
+        <YAxis id="valveOpening" opposite>
+          <YAxis.Title>Valve Opening Time (%)</YAxis.Title>
+          <ColumnSeries
+            id="valve"
+            name="Valve State"
+            data={this.state.valve}
+            step
+            marker={{enabled: false}}
+            color='rgba(124, 181, 236, 0.2)'
+          />
+        </YAxis>
         <YAxis id="temperature">
           <YAxis.Title>Temperature (°C)</YAxis.Title>
-          <AreaSeries
-          	id="valve"
-          	name="Valve State"
-          	data={this.state.valve}
-          	step
+          <AreaSplineRangeSeries
+            id="tempRange"
+            name="External Temperature Range"
+            data={this.state.tempRange}
+            step
             marker={{enabled: false}}
-            color='#7cb5ec'
-          	lineWidth={0}
-          	fillOpacity={0.2}
+            color='#f7a35c'
+            lineWidth={0}
+            fillOpacity={0.2}
+          />
+
+          <SplineSeries
+            id="temp"
+            name="External Temperature Average"
+            data={this.state.temp}
+            step
+            marker={{enabled: false}}
+            color='#f7a35c'
           />
           <LineSeries
-          	id="tempSet"
-          	name="Temperature Set"
-          	data={this.state.tempSet}
-          	step
-          	marker={{enabled: false}}
-          	color='#7cb5ec'
-          />
-          <SplineSeries
-          	id="tempAct"
-          	name="Temperature Actual"
-          	data={this.state.tempAct}
-          	step
+            id="tempSet"
+            name="Temperature Set"
+            data={this.state.tempSet}
+            step
             marker={{enabled: false}}
-          	color='#90ed7d'
+            color='#7cb5ec'
           />
           <SplineSeries
-          	id="temp"
-          	name="External Temperature"
-          	data={this.state.temp}
-          	step
-          	marker={{enabled: false}}
-          	color='#f7a35c'
+            id="tempAct"
+            name="Temperature Actual"
+            data={this.state.tempAct}
+            step
+            marker={{enabled: false}}
+            color='#90ed7d'
           />
         </YAxis>
       </HighchartsChart>
-		)
-	}
+    )
+  }
 }
 
-ChartComponentContainer = withHighcharts(ChartComponent, Highcharts)
+ChartComponentContainer = withHighcharts(ChartComponentHigh, Highcharts)
 
 export default HighChartsContainer = withTracker((props) => {
 
@@ -185,10 +196,6 @@ export default HighChartsContainer = withTracker((props) => {
     var lte  = props.now
   }
 
-  var interval = lte - gte
-
-  var detail = interval < 173000000 ? "high" : interval < 5357000000 ? "medium" : "low"
-
   var subs = Meteor.subscribe('charts', {name: ['temp', 'tempSet', 'tempAct', 'valve']})
 
   return {
@@ -197,7 +204,6 @@ export default HighChartsContainer = withTracker((props) => {
     tempAct: Charts.find({name: 'tempAct', year: {$gte: gte.getFullYear(), $lte: lte.getFullYear() }}, {sort: {year: 1}}).fetch(),
     valve: Charts.find({name: 'valve', year: {$gte: gte.getFullYear(), $lte: lte.getFullYear() }}, {sort: {year: 1}}).fetch(),
     gte: gte,
-    lte: lte,
-    detail: detail
+    lte: lte
   }
 })(ChartComponentContainer)

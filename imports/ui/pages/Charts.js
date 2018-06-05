@@ -1,6 +1,10 @@
 import React, { Component } from 'react'
 import { Mongo } from 'meteor/mongo'
-import ChartComponent from '../components/ChartComponent'
+import ChartComponentHigh from '../components/ChartComponentHigh'
+import ChartComponentMedium from '../components/ChartComponentMedium'
+import ChartComponentLow from '../components/ChartComponentLow'
+import SelectionForm from '../components/SelectionForm'
+
 
 export default class Charts extends Component {
   constructor(props) {
@@ -11,7 +15,8 @@ export default class Charts extends Component {
       selectedOption: 'last24Hours',
       width: 1,
       unit: 60,
-      now: new Date()
+      now: new Date(),
+      detail: "high"
     };
 
     this.handleChange = this.handleChange.bind(this)
@@ -27,6 +32,10 @@ export default class Charts extends Component {
 	  clearInterval(this.timer)
   }
 
+  getDetail(interval){
+		return interval < 173000000 ? "high" : interval < 5357000000 ? "medium" : "low"
+  }
+
   handleChange(event) {
   	var value = event.target.value
     switch(value) {
@@ -34,35 +43,40 @@ export default class Charts extends Component {
 		    this.setState({
 		      width: 1,
 		      unit: 60*60*24*365,
-		    	selectedOption: value
+		    	selectedOption: value,
+		    	detail: this.getDetail(60*60*24*365*1 * 1000)
 		    })
 	    	break
 	    case 'last6Months':
 		    this.setState({
 		      width: 6,
 		      unit: 60*60*24*30,
-		    	selectedOption: value
+		    	selectedOption: value,
+		    	detail: this.getDetail(60*60*24*30*6 * 1000)
 		    })
 	    	break
 	    case 'lastMonth':
 		    this.setState({
 		      width: 1,
 		      unit: 60*60*24*30,
-		    	selectedOption: value
+		    	selectedOption: value,
+		    	detail: this.getDetail(60*60*24*30*1 * 1000)
 		    })
 	    	break
 	    case 'lastWeek':
 		    this.setState({
 		      width: 1,
 		      unit: 60*60*24*7,
-		    	selectedOption: value
+		    	selectedOption: value,
+		    	detail: this.getDetail(60*60*24*7 * 1000)
 		    })
 	    	break
 	    case 'last24Hours':
 		    this.setState({
 		      width: 1,
 		      unit: 60*60*24,
-		    	selectedOption: value
+		    	selectedOption: value,
+		    	detail: this.getDetail(60*60*24 * 1000)
 		    })
 	    	break
 	    case 'Span':
@@ -78,23 +92,29 @@ export default class Charts extends Component {
 	  }
 
     if ( this.state.selectedOption == 'Span' && event.target.name == 'width' ) {
+    	console.log(event.target.value, this.state.unit)
 	    this.setState({
-	      width: event.target.value
+	      width: event.target.value,
+	    	detail: this.getDetail(event.target.value * this.state.unit * 1000)
 	    })
 	  }
     if ( this.state.selectedOption == 'Span' && event.target.name == 'unit' ) {
+    	console.log(event.target.value, this.state.width)
 	    this.setState({
-	      unit: event.target.value
+	      unit: event.target.value,
+	    	detail: this.getDetail(event.target.value * this.state.width * 1000)
 	    })
 	  }
     if ( this.state.selectedOption == 'Period' && event.target.name == 'from' ) {
 	    this.setState({
-	      gte: new Date(event.target.value)
+	      gte: new Date(event.target.value),
+	    	detail: this.getDetail(new Date(this.state.lte).getTime() - new Date(event.target.value).getTime())
 	    })
 	  }
     if ( this.state.selectedOption == 'Period' && event.target.name == 'to' ) {
 	    this.setState({
-	      lte: new Date(event.target.value)
+	      lte: new Date(event.target.value),
+	    	detail: this.getDetail(new Date(event.target.value).getTime() - new Date(this.state.gte).getTime())
 	    })
 	  }
   }
@@ -104,136 +124,61 @@ export default class Charts extends Component {
     event.preventDefault()
   }
 
+  renderChart(detail) {
+  	switch(detail) {
+			case "high":
+				return (
+					<ChartComponentHigh
+						gte={this.state.gte} 
+						lte={this.state.lte}
+						selectedOption={this.state.selectedOption}
+						width={this.state.width}
+						unit={this.state.unit}
+						now={this.state.now}
+					/>
+				)
+			case "medium":
+				return (
+					<ChartComponentMedium
+						gte={this.state.gte} 
+						lte={this.state.lte}
+						selectedOption={this.state.selectedOption}
+						width={this.state.width}
+						unit={this.state.unit}
+						now={this.state.now}
+					/>
+				)
+			case "low":
+				return (
+					<ChartComponentLow
+						gte={this.state.gte} 
+						lte={this.state.lte}
+						selectedOption={this.state.selectedOption}
+						width={this.state.width}
+						unit={this.state.unit}
+						now={this.state.now}
+					/>
+				)
+		}
+  }
+
   //as children of the chart there are some configuration controls.
   //There are some real time trending options (last Year...Last 24 Hours and the more flexible Span)
   //And an historical option (Period) that allows the user to select the period to scope.
 	render() {
 		return ( 
-			<ChartComponent 
-				gte={this.state.gte} 
-				lte={this.state.lte}
-				selectedOption={this.state.selectedOption}
-				width={this.state.width}
-				unit={this.state.unit}
-				now={this.state.now}
-			>
-			  <form onSubmit={this.handleSubmit}>
-			    <div>
-			      <label>
-			        <input type="radio" value="lastYear" 
-								checked={this.state.selectedOption === 'lastYear'} 
-								onChange={this.handleChange} />
-								Last Year
-			      </label>
-			    </div>
-			    <div>
-			      <label>
-			        <input type="radio" value="last6Months" 
-								checked={this.state.selectedOption === 'last6Months'} 
-								onChange={this.handleChange} />
-								Last 6 Months
-			      </label>
-			    </div>
-			    <div>
-			      <label>
-			        <input type="radio" value="lastMonth" 
-								checked={this.state.selectedOption === 'lastMonth'} 
-								onChange={this.handleChange} />
-								Last Month
-			      </label>
-			    </div>
-			    <div>
-			      <label>
-			        <input type="radio" value="lastWeek" 
-								checked={this.state.selectedOption === 'lastWeek'} 
-								onChange={this.handleChange} />
-								Last Week
-			      </label>
-			    </div>
-			    <div>
-			      <label>
-			        <input type="radio" value="last24Hours" 
-								checked={this.state.selectedOption === 'last24Hours'} 
-								onChange={this.handleChange} />
-								Last 24 Hours
-			      </label>
-			    </div>
-			    <div>
-			      <label>
-			        <input type="radio" value="Span" 
-								checked={this.state.selectedOption === 'Span'} 
-								onChange={this.handleChange} />
-								Enter Span
-			      </label>
-			    </div>
-			    {
-			    	this.state.selectedOption == "Span" &&
-			    	<div>
-				  		<div>
-	  			      <label>
-	  							Width
-	  			        <input
-	  			        	name="width" type="number"
-	  			        	value={this.state.width}
-	  								onChange={this.handleChange}
-	  							/>
-	  			      </label>
-	  			    </div>
-	  			    <div>
-	  			      <label>
-	  							Unit
-	  			        <select
-	  			        	name="unit"
-	  			        	value={this.state.unit}
-	  								onChange={this.handleChange}
-	  							>
-	  								<option value={1}>Seconds</option>
-	  								<option value={60*1}>Minutes</option>
-	  								<option value={60*60}>Hours</option>
-	  								<option value={60*60*24}>Days</option>
-	  								<option value={60*60*24*7}>Weeks</option>
-	  								<option value={60*60*24*30}>Months</option>
-	  								<option value={60*60*24*365}>Years</option>
-	  							</select>
-	  			      </label>
-	  					</div>
-	  				</div>
-  			  }
-			    <div>
-			      <label>
-			        <input type="radio" value="Period" 
-								checked={this.state.selectedOption === 'Period'} 
-								onChange={this.handleChange} />
-								Enter Period
-			      </label>
-			    </div>
-			    {
-			    	this.state.selectedOption == "Period" &&
-			    	<div>
-					    <div>
-					      <label>
-									From
-					        <input
-					        	name="from" type="datetime-local"
-					        	value={this.state.gte.toISOString().substr(0,this.state.gte.toISOString().length-1)}
-										onChange={this.handleChange}
-									/>
-					      </label>
-					    </div>
-					    <div>
-					      <label>
-									To
-					        <input 
-					        	name="to" type="datetime-local"
-					        	value={this.state.lte.toISOString().substr(0,this.state.lte.toISOString().length-1)}
-										onChange={this.handleChange}
-									/>
-					      </label>
-					    </div>
-					  </div>
-					}
-			  </form>
-			</ChartComponent>
+			<div>
+				{this.renderChart(this.state.detail)}
+				<SelectionForm 
+					gte={this.state.gte} 
+					lte={this.state.lte}
+					selectedOption={this.state.selectedOption}
+					width={this.state.width}
+					unit={this.state.unit}
+					now={this.state.now}
+					handleChange={this.handleChange}
+				/>
+			</div>
 		)
 	}
 }
