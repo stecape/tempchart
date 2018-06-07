@@ -17,10 +17,7 @@ export default class Charts extends Component {
       unit: 60,
       now: new Date(),
       detail: "high"
-    };
-
-    this.handleChange = this.handleChange.bind(this)
-    this.handleSubmit = this.handleSubmit.bind(this)
+    }
   }
 
   componentDidMount() {
@@ -30,98 +27,6 @@ export default class Charts extends Component {
 
   componentWillUnmount(){
 	  clearInterval(this.timer)
-  }
-
-  getDetail(interval){
-		return interval < 173000000 ? "high" : interval < 5357000000 ? "medium" : "low"
-  }
-
-  handleChange(event) {
-  	var value = event.target.value
-    switch(value) {
-	    case 'lastYear':
-		    this.setState({
-		      width: 1,
-		      unit: 60*60*24*365,
-		    	selectedOption: value,
-		    	detail: this.getDetail(60*60*24*365*1 * 1000)
-		    })
-	    	break
-	    case 'last6Months':
-		    this.setState({
-		      width: 6,
-		      unit: 60*60*24*30,
-		    	selectedOption: value,
-		    	detail: this.getDetail(60*60*24*30*6 * 1000)
-		    })
-	    	break
-	    case 'lastMonth':
-		    this.setState({
-		      width: 1,
-		      unit: 60*60*24*30,
-		    	selectedOption: value,
-		    	detail: this.getDetail(60*60*24*30*1 * 1000)
-		    })
-	    	break
-	    case 'lastWeek':
-		    this.setState({
-		      width: 1,
-		      unit: 60*60*24*7,
-		    	selectedOption: value,
-		    	detail: this.getDetail(60*60*24*7 * 1000)
-		    })
-	    	break
-	    case 'last24Hours':
-		    this.setState({
-		      width: 1,
-		      unit: 60*60*24,
-		    	selectedOption: value,
-		    	detail: this.getDetail(60*60*24 * 1000)
-		    })
-	    	break
-	    case 'Span':
-		    this.setState({
-		    	selectedOption: value
-		    })
-	   		break
-	    case 'Period':
-		    this.setState({
-		    	selectedOption: value
-		    })
-	   		break
-	  }
-
-    if ( this.state.selectedOption == 'Span' && event.target.name == 'width' ) {
-    	console.log(event.target.value, this.state.unit)
-	    this.setState({
-	      width: event.target.value,
-	    	detail: this.getDetail(event.target.value * this.state.unit * 1000)
-	    })
-	  }
-    if ( this.state.selectedOption == 'Span' && event.target.name == 'unit' ) {
-    	console.log(event.target.value, this.state.width)
-	    this.setState({
-	      unit: event.target.value,
-	    	detail: this.getDetail(event.target.value * this.state.width * 1000)
-	    })
-	  }
-    if ( this.state.selectedOption == 'Period' && event.target.name == 'from' ) {
-	    this.setState({
-	      gte: new Date(event.target.value),
-	    	detail: this.getDetail(new Date(this.state.lte).getTime() - new Date(event.target.value).getTime())
-	    })
-	  }
-    if ( this.state.selectedOption == 'Period' && event.target.name == 'to' ) {
-	    this.setState({
-	      lte: new Date(event.target.value),
-	    	detail: this.getDetail(new Date(event.target.value).getTime() - new Date(this.state.gte).getTime())
-	    })
-	  }
-  }
-
-	//not used
-  handleSubmit(event) {
-    event.preventDefault()
   }
 
   renderChart(detail) {
@@ -176,7 +81,7 @@ export default class Charts extends Component {
 					width={this.state.width}
 					unit={this.state.unit}
 					now={this.state.now}
-					handleChange={this.handleChange}
+					changeEvent={(st) => this.setState(st)}
 				/>
 			</div>
 		)

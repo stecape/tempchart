@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { withTracker } from 'meteor/react-meteor-data'
 import { Mongo } from 'meteor/mongo'
 import { Charts } from '../../api/Charts'
-import { getHighDetailSeries } from '../../api/dataTools'
+import { getHighDetailSeries, getMediumDetailRange } from '../../api/dataTools'
 import Highcharts from 'highcharts'
 import HighchartsMore from 'highcharts/highcharts-more';
 HighchartsMore(Highcharts)
@@ -71,6 +71,11 @@ then you filter it using the boundaries that are provided through props
 and you sort it by timestamp for optimize the performance of HighCharts
 
 */
+    var tempRange = getMediumDetailRange(
+      nextProps.temp,
+      nextProps.gte,
+      nextProps.lte
+    )
     var temp = getHighDetailSeries(
       nextProps.temp,
       nextProps.gte,
@@ -96,6 +101,7 @@ and you sort it by timestamp for optimize the performance of HighCharts
     // then you return an object that will be used for update the state
     var series = {
       temp: temp,
+      tempRange: tempRange,
       tempSet: tempSet,
       tempAct: tempAct,
       valve: valve
