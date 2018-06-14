@@ -18,6 +18,7 @@ Meteor.startup(() => {
     If you want to make steps of 6 hours, starting from 160 days ago, enable this */
     var _x = x*25199000
     var d = new Date(new Date().setDate(new Date().getDate()-160))
+        d = new Date(d.getFullYear(), d.getMonth(), d.getDay())
     var dx = d.getTime() + _x
     date = new Date(dx)
     /**/

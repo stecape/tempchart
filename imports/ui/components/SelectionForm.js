@@ -1,9 +1,5 @@
 import React, { Component } from 'react'
 
-getDetail = (interval) => {
-	return interval < 173000000 ? "high" : interval < 5357000000 ? "medium" : "low"
-}
-
 handleChange = (props, event) => {
 	var value = event.target.value
   switch(value) {
@@ -11,40 +7,35 @@ handleChange = (props, event) => {
 	    return({
 	      width: 1,
 	      unit: 60*60*24*365,
-	    	selectedOption: value,
-	    	detail: this.getDetail(60*60*24*365*1 * 1000)
+	    	selectedOption: value
 	    })
     	break
     case 'last6Months':
 	    return({
 	      width: 6,
 	      unit: 60*60*24*30,
-	    	selectedOption: value,
-	    	detail: this.getDetail(60*60*24*30*6 * 1000)
+	    	selectedOption: value
 	    })
     	break
     case 'lastMonth':
 	    return({
 	      width: 1,
 	      unit: 60*60*24*30,
-	    	selectedOption: value,
-	    	detail: this.getDetail(60*60*24*30*1 * 1000)
+	    	selectedOption: value
 	    })
     	break
     case 'lastWeek':
 	    return({
 	      width: 1,
 	      unit: 60*60*24*7,
-	    	selectedOption: value,
-	    	detail: this.getDetail(60*60*24*7 * 1000)
+	    	selectedOption: value
 	    })
     	break
     case 'last24Hours':
 	    return({
 	      width: 1,
 	      unit: 60*60*24,
-	    	selectedOption: value,
-	    	detail: this.getDetail(60*60*24 * 1000)
+	    	selectedOption: value
 	    })
     	break
     case 'Span':
@@ -60,29 +51,23 @@ handleChange = (props, event) => {
   }
 
   if ( props.selectedOption == 'Span' && event.target.name == 'width' ) {
-  	console.log(event.target.value, props.unit)
-    return({
+  	return({
       width: event.target.value,
-    	detail: this.getDetail(event.target.value * props.unit * 1000)
     })
   }
   if ( props.selectedOption == 'Span' && event.target.name == 'unit' ) {
-  	console.log(event.target.value, props.width)
-    return({
+  	return({
       unit: event.target.value,
-    	detail: this.getDetail(event.target.value * props.width * 1000)
     })
   }
   if ( props.selectedOption == 'Period' && event.target.name == 'from' ) {
     return({
-      gte: new Date(event.target.value),
-    	detail: this.getDetail(new Date(props.lte).getTime() - new Date(event.target.value).getTime())
+      from: new Date(event.target.value),
     })
   }
   if ( props.selectedOption == 'Period' && event.target.name == 'to' ) {
     return({
-      lte: new Date(event.target.value),
-    	detail: this.getDetail(new Date(event.target.value).getTime() - new Date(props.gte).getTime())
+      to: new Date(event.target.value),
     })
   }
 }
@@ -92,7 +77,7 @@ handleSubmit = (event) => {
   event.preventDefault()
 }
 
-export default function SelectionForm (props) {
+Items = (props) => {
 	return (
 		<form onSubmit={this.handleSubmit}>
 		  <div>
@@ -192,7 +177,7 @@ export default function SelectionForm (props) {
 							From
 			        <input
 			        	name="from" type="datetime-local"
-			        	value={props.gte.toISOString().substr(0,props.gte.toISOString().length-1)}
+			        	value={new Date(props.from.getTime() - (props.from.getTimezoneOffset() * 60000)).toISOString().substr(0,19)}
 								onChange={(e) => props.changeEvent(this.handleChange(props, e))}
 							/>
 			      </label>
@@ -202,7 +187,7 @@ export default function SelectionForm (props) {
 							To
 			        <input 
 			        	name="to" type="datetime-local"
-			        	value={props.lte.toISOString().substr(0,props.lte.toISOString().length-1)}
+			        	value={new Date(props.to.getTime() - (props.to.getTimezoneOffset() * 60000)).toISOString().substr(0,19)}
 								onChange={(e) => props.changeEvent(this.handleChange(props, e))}
 							/>
 			      </label>
@@ -211,4 +196,56 @@ export default function SelectionForm (props) {
 			}
 		</form>
 	)
+}
+
+export default class SelectionForm extends Component {
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      from: new Date(new Date().setDate(new Date().getDate()-1)),
+      to: new Date(),
+      width: 1,
+	    unit: 60*60*24,
+      selectedOption: 'last24Hours'
+    }
+  }
+
+  componentDidMount() {
+  	//a timer update the actual moment time each 500ms. This is the timebase of the real time charting.
+  	this.timer = setInterval(() => {
+  		if (this.state.selectedOption != "Period") {
+	  		var to = new Date().getTime()
+	  		var from = to - this.state.width*this.state.unit*1000
+  			this.props.changeEvent({
+					from: from, 
+					to: to
+	  		}) 
+  		} else {
+	  		this.props.changeEvent({
+					from: this.state.from, 
+					to: this.state.to
+	  		})
+	  	}
+  	}
+  	, 500)
+  }
+
+  componentWillUnmount(){
+	  clearInterval(this.timer)
+  }
+
+  render () {
+  	return (
+			<Items 
+				from={this.state.from} 
+				to={this.state.to}
+				width={this.state.width}
+				unit={this.state.unit}
+				selectedOption={this.state.selectedOption}
+				changeEvent={(st) => this.setState(st)}
+			/>
+  	)
+  }
+
 }

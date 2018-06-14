@@ -24,22 +24,6 @@ getCollection = (d, gte, lte) => {
       })
 }
 
-getCollection1 = (d, gte, lte) => {
-  return d
-    .reduce((acc,t) => {
-        return acc.concat(t.data)
-      }, [] )
-    .filter(t => {
-        var low = new Date(gte).getTime()
-        var up = new Date(lte).getTime()
-        var comp = (low <= t[0]) && (t[0] <= up)
-        return comp
-      })
-    .sort((a, b) => {
-        return a[0] - b[0]
-      })
-}
-
 getDaily = (d) => {
   return d.reduce((acc, t) =>  {
       let _t = new Date(t[0])
@@ -122,11 +106,6 @@ export const getLowDetailRange = (d, gte, lte) => {
 
 export const getLowDetailSeries = (d, gte, lte) => {
   if (d.length > 0) {
-    var end = getCollection1(d, gte, lte)[getCollection1(d, gte, lte).length-1][0]
-    var start = getCollection1(d, gte, lte)[0][0]
-    var frame = end - start
-
-    console.log(start, end, frame, Math.trunc(getCollection1(d, gte, lte).length/30))
     var _collection = getCollection(d, gte, lte)
     var daily = getDaily(_collection)
     var weekly = getWeekly(daily)
