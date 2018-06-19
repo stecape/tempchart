@@ -8,16 +8,16 @@ Meteor.startup(() => {
   Meteor.call('charts.clear')
 
 	/*
-  If you want to make steps of 6 hours, starting from 160 days ago, enable this*/
+  If you want to make steps of 6 hours, starting from 160 days ago, enable this
   var x = 0
   /**/
 
   getDate = () => {
     var date = new Date()
     /*
-    If you want to make steps of 6 hours, starting from 160 days ago, enable this */
+    If you want to make steps of 6 hours, starting from 160 days ago, enable this 
     var _x = x*25199000
-    var d = new Date(new Date().setDate(new Date().getDate()-160))
+    var d = new Date("2017-12-01T00:00:00")
         d = new Date(d.getFullYear(), d.getMonth(), d.getDay())
     var dx = d.getTime() + _x
     date = new Date(dx)
@@ -37,7 +37,7 @@ Meteor.startup(() => {
     var valve = tempSet > tempAct ? 1 : 0
     
     /*
-    If you want to make steps of 6 hours, starting from 160 days ago, enable this*/
+    If you want to make steps of 6 hours, starting from 160 days ago, enable this
     x = x + 1
     /**/
 

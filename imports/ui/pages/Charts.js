@@ -1,15 +1,17 @@
 import React, { Component } from 'react'
 import { Mongo } from 'meteor/mongo'
 import ChartComponent from '../components/ChartComponent'
-import SelectionForm from '../components/SelectionForm'
-
+import TimeSelectionForm from '../components/TimeSelectionForm'
+import DetailSelectionForm from '../components/DetailSelectionForm'
+import "../styles/Charts.css"
 
 export default class Charts extends Component {
   constructor(props) {
     super(props)
     this.state = {
       from: new Date(new Date().setDate(new Date().getDate()-1)).getTime(),
-      to: new Date().getTime()
+      to: new Date().getTime(),
+      detail: "highest"
     }
   }
 
@@ -22,10 +24,21 @@ export default class Charts extends Component {
 				<ChartComponent
 					from={this.state.from} 
 					to={this.state.to}
+					detail={this.state.detail}
 				/>
-				<SelectionForm
-					changeEvent={(st) => this.setState(st)}
-				/>
+				<div className="flex-container">
+					<div className="item">
+						<TimeSelectionForm
+							changeEvent={(st) => this.setState(st)}
+						/>
+					</div>
+					<div className="item">
+						<DetailSelectionForm
+							changeEvent={(st) => this.setState(st)}
+							detail={this.state.detail}
+						/>
+					</div>
+				</div>
 			</div>
 		)
 	}
