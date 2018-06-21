@@ -66,7 +66,6 @@ class ChartComponent extends Component {
       valve:     valve,
       detail:    nextProps.detail
     }
-        console.log(series)
     return series
     
 	}

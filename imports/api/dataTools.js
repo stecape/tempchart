@@ -1,7 +1,7 @@
 
 
 getCollection = (d, gte, lte) => {
-  return d
+  let x = d
     .reduce((acc,t) => {
         return acc.concat(t.data)
       }, [] )
@@ -14,6 +14,7 @@ getCollection = (d, gte, lte) => {
     .sort((a, b) => {
         return a[0] - b[0]
       })
+  return x
 }
 
 getMinutely = (d) => {
@@ -166,13 +167,14 @@ getRange = (d) => {
 
 export const getDataSeries = (d, gte, lte, detail) => {
   if (d.length > 0) {
-    return getSeries(getData(d, gte, lte, detail))
+    return detail != 'highest' ? getSeries(getData(d, gte, lte, detail)) : getData(d, gte, lte, detail)
   }
   return []
 }
 export const getDataRange = (d, gte, lte, detail) => {
   if (d.length > 0) {
-    return getRange(getData(d, gte, lte, detail))
+    return detail != 'highest' &&
+    getRange(getData(d, gte, lte, detail))
   }
   return []
 }
